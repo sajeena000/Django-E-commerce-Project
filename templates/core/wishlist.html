@@ -1,0 +1,147 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<main class="main" id="wishlist-list">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="index.html" rel="nofollow" class="breadcrumb-item"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span class="breadcrumb-separator"></span>
+                <span class="breadcrumb-item">Shop</span>
+                <span class="breadcrumb-separator"></span>
+                <span class="breadcrumb-item active">Wishlist</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container mb-30 mt-50">
+        <div class="row">
+            <div class="col-xl-10 col-lg-12 m-auto">
+                <div class="mb-50">
+                    <h1 class="heading-2 mb-10">Your Wishlist</h1>
+                    <h6 class="text-body">There are <span class="text-brand">{{ wishlist|length }}</span> products in this list</h6>
+                </div>
+                <div class="table-responsive shopping-summery">
+                    <table class="table custom-table">
+                        <thead class="thead-light">
+                            <tr class="main-heading">
+                                <th class="pl-4">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCheckbox" value="" />
+                                    <label class="form-check-label" for="selectAllCheckbox"></label>
+                                </th>
+                                <th scope="col" colspan="2">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Stock Status</th>
+                                <th scope="col" class="text-center">Action</th>
+                                <th scope="col" class="text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for w in wishlist %}
+                            <tr>
+                                <td class="pl-4">
+                                    <input class="form-check-input" type="checkbox" id="checkbox_{{ forloop.counter }}" value="" />
+                                    <label class="form-check-label" for="checkbox_{{ forloop.counter }}"></label>
+                                </td>
+                                <td class="product-thumbnail"><img src="{{ w.product.image.url }}" alt="{{ w.product.title }}" class="img-fluid"></td>
+                                <td class="product-des">
+                                    <h6><a class="text-heading" href="{% url 'core:product-detail' w.product.pid %}">{{ w.product.title|truncatechars:30 }}</a></h6>
+                                </td>
+                                <td class="price" data-title="Price">
+                                    <span class="text-brand">${{ w.product.price }}</span>
+                                </td>
+                                <td class="text-center detail-info" data-title="Stock">
+                                    <span class="stock-status {% if w.product.in_stock %}in-stock{% else %}out-of-stock{% endif %} mb-0">
+                                        {% if w.product.in_stock %} In Stock {% else %} Out of Stock {% endif %}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{ w.product.id }}">
+                                    <input type="hidden" class="product-pid-{{ w.product.id }}" value="{{ w.product.pid }}">
+                                    <input type="hidden" class="product-image-{{ w.product.id }}" value="{{ w.product.image.url }}">
+                                    <input type="hidden" class="product-id-{{ w.product.id }}" value="{{ w.product.id }}">
+                                    <input type="hidden" class="product-title-{{ w.product.id }}" value="{{ w.product.title }}">
+                                    <input type="hidden" class="product-price-{{ w.product.id }}" value="{{ w.product.price }}">
+
+                                    <button class="btn btn-sm btn-primary add-to-cart-btn" data-index="{{ w.product.id }}">Add to cart</button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-link text-danger delete-wishlist-product" data-wishlist-product="{{ w.id }}">
+                                        <i class="fi-rs-trash"></i> Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center"><p>No items in wishlist yet...</p></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    $(document).on('click', '.add-to-cart-btn', function() {
+        var productId = $(this).data('index');
+        var productTitle = $('.product-title-' + productId).val();
+        var productPrice = $('.product-price-' + productId).val();
+        var productPid = $('.product-pid-' + productId).val();
+        var productImage = $('.product-image-' + productId).val();
+
+        $.ajax({
+            url: '{% url "core:add-to-cart" %}',
+            data: {
+                id: productId,
+                title: productTitle,
+                price: productPrice,  // Pass the price here
+                pid: productPid,
+                image: productImage
+            },
+            success: function(response) {
+                // Optionally handle success, e.g., update cart count
+            },
+            error: function(xhr, errmsg, err) {
+                console.log("Failed to add product to cart: " + errmsg);
+            }
+        });
+    });
+</script>
+
+<style>
+    .custom-table {
+        width: 100%;
+        border-spacing: 3px; /* Space between columns */
+    }
+    .custom-table th,
+    .custom-table td {
+        padding: 8px; /* Padding inside cells */
+    }
+    .product-thumbnail img {
+        max-width: 75px;
+        height: auto;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 4px;
+    }
+    .btn-link {
+        font-size: 14px;
+        padding: 0;
+    }
+    .stock-status.in-stock {
+        color: green;
+        font-weight: bold;
+    }
+    .stock-status.out-of-stock {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+{% endblock content %}

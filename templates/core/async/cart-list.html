@@ -1,0 +1,97 @@
+<main class="main" id="cart-list">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="index.html" rel="nofollow" class="breadcrumb-item"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span class="breadcrumb-separator"></span> 
+                <span class="breadcrumb-item">Shop</span>
+                <span class="breadcrumb-separator"></span>
+                <span class="breadcrumb-item active">Cart</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <h1 class="heading-2 mb-4">Your Cart</h1>
+                <p class="text-body">There are <span class="text-brand">{{ totalcartitems }}</span> products in your cart</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="table-responsive shopping-summery">
+                    <table class="table table-bordered table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th class="pl-4">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCheckbox" value="">
+                                    <label class="form-check-label" for="selectAllCheckbox"></label>
+                                </th>
+                                <th scope="col">Product</th>
+                                <th scope="col">Title</th>
+                                <th scope="col">Unit Price</th>
+                                <th scope="col" class="text-center">Quantity</th>
+                                <th scope="col">Subtotal</th>
+                                <th scope="col" class="text-center">Refresh</th>
+                                <th scope="col" class="text-center">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product_id, item in cart_data.items %}
+                            <tr>
+                                <td class="pl-4">
+                                    <input class="form-check-input" type="checkbox" id="checkbox_{{ forloop.counter }}" value="">
+                                    <label class="form-check-label" for="checkbox_{{ forloop.counter }}"></label>
+                                </td>
+                                <td class="product-thumbnail"><img src="{{ item.image }}" alt="{{ item.title }}" class="img-fluid"></td>
+                                <td class="product-des">
+                                    <h6 class="mb-2"><a class="text-heading" href="{% url 'core:product-detail' item.pid %}">{{ item.title }}</a></h6>
+                                </td>
+                                <td class="price">${{item.price|floatformat:2}}</td>
+                                <td class="text-center">
+                                    <input type="number" class="form-control w-50 mx-auto text-center" value="{{ item.qty }}">
+                                </td>
+                                <td class="price">${% widthratio item.price 1 item.qty %}</td>
+                                <td class="text-center">
+                                    <button class="btn btn-link update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-link delete-product" data-product="{{ product_id }}"><i class="fi-rs-trash"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="border p-4 cart-totals">
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted">Subtotal</td>
+                                <td class="text-end text-brand">${{cart_total_amount|floatformat:2}}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><hr></td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Shipping</td>
+                                <td class="text-end">Free</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Total</td>
+                                <td class="text-end text-brand">${{cart_total_amount|floatformat:2}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    {% if totalcartitems %}
+                    <a href="{% url 'core:checkout' %}" class="btn btn-primary btn-block mt-4">Proceed To Checkout <i class="fi-rs-sign-out ml-2"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,0 +1,156 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<main class="main" id="cart-list">
+  <div class="page-header breadcrumb-wrap">
+    <div class="container">
+      <nav class="breadcrumb">
+        <a href="/" rel="nofollow" class="breadcrumb-item"><i class="fi-rs-home mr-5"></i>Home</a>
+        <span class="breadcrumb-separator"></span>
+        <span class="breadcrumb-item">Shop</span>
+        <span class="breadcrumb-separator"></span>
+        <span class="breadcrumb-item active">Cart</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container my-5">
+    <div class="row">
+      <div class="col-lg-8 mb-4">
+        <h1 class="heading-2 mb-4">Your Cart</h1>
+        <p class="text-body">You have <span class="text-brand">{{ totalcartitems }}</span> handcrafted treasures in your cart</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="table-responsive shopping-summery p-3">
+          <table class="table custom-table">
+            <thead class="thead-light">
+              <tr class="main-heading">
+                <th scope="col">Product</th>
+                <th scope="col">Title</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col" class="text-center">Quantity</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col" class="text-center">Update</th>
+                <th scope="col" class="text-center">Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product_id, item in cart_data.items %}
+                <tr id="cart-item-{{ product_id }}">
+                  <td class="product-thumbnail"><img src="{{ item.image }}" alt="{{ item.title }}" class="img-fluid"></td>
+                  <td class="product-des">
+                    <h6 class="mb-2"><a class="text-heading" href="{% url 'core:product-detail' item.pid %}">{{ item.title }}</a></h6>
+                  </td>
+                  <td class="price">${{ item.price }}</td>
+                  <td class="text-center">
+                    <input type="number" class="form-control w-50 mx-auto text-center product-qty-{{ product_id }}" value="{{ item.qty }}">
+                  </td>
+                  <td class="price">${{ item.subtotal|floatformat:2 }}</td>
+                  <td class="text-center">
+                    <button class="btn btn-link update-product px-3" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-link delete-product px-3" data-product="{{ product_id }}"><i class="fi-rs-trash"></i></button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="border p-4 cart-totals">
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <td class="text-muted">Subtotal</td>
+                <td class="text-end text-brand">${{ cart_total_amount|floatformat:2 }}</td>
+              </tr>
+              <tr>
+                <td colspan="2"><hr></td>
+              </tr>
+              <tr>
+                <td class="text-muted">Shipping</td>
+                <td class="text-end">Free within Nepal</td>
+              </tr>
+              <tr>
+                <td class="text-muted">Total</td>
+                <td class="text-end text-brand">${{ cart_total_amount|floatformat:2 }}</td>
+              </tr>
+            </tbody>
+          </table>
+          {% if totalcartitems %}
+            <a href="{% url 'core:checkout' %}" class="btn btn-primary btn-block mt-4"><i class="fi-rs-shopping-cart"></i> Proceed To Checkout</a>
+            <!-- <a href="{% url 'core:gift_checkout' %}" class="btn btn-secondary btn-block mt-2"><i class="fi-rs-gift"></i> Gift</a> -->
+            <a href="#" class="btn btn-warning btn-block mt-2" id="gift-with-wrapping"><i class="fi-rs-package"></i> Gift Wrapping (+$2)</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  $(document).on('click', '.delete-product', function(e) {
+    e.preventDefault();
+    var product_id = $(this).data('product');
+    console.log("Attempting to delete product with ID:", product_id);  // Debugging line
+    $.ajax({
+        url: '{% url "core:delete-from-cart" %}',  // Ensure this URL matches your urls.py
+        data: {
+            'id': product_id
+        },
+        success: function(response) {
+            console.log("Delete successful for product ID:", product_id);  // Debugging line
+            $('#cart-item-' + product_id).remove();  // Remove the item row from the table
+            $('#cart-list').html(response.data);  // Update the cart list HTML
+            $('#totalcartitems').text(response.totalcartitems);  // Update cart item count
+        },
+        error: function(xhr, errmsg, err) {
+            console.log("Delete failed:", xhr.status + ": " + xhr.responseText);  // Debugging line
+        }
+    });
+});
+
+  // Handle Gift with Wrapping button
+  document.getElementById('gift-with-wrapping').addEventListener('click', function(e) {
+    e.preventDefault();
+    var currentTotal = parseFloat('{{ cart_total_amount|floatformat:2 }}');
+    var newTotal = currentTotal + 2.00;
+    // Redirect to the gift form with wrapping
+    window.location.href = "{% url 'core:gift_checkout' %}?gift_with_wrapping=true";
+  });
+</script>
+
+<style>
+  .custom-table {
+    width: 100%;
+    border-spacing: 3px; /* Space between columns */
+  }
+  .custom-table th,
+  .custom-table td {
+    padding: 6px; /* Padding inside cells */
+  }
+  .btn-primary {
+    background-color: #007bff;
+    color: #fff;
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+  .btn-warning {
+    background-color: #004879;
+    color: #fff;
+  }
+  .btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+</style>
+{% endblock %}
