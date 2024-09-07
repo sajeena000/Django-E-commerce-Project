@@ -26,3 +26,7 @@ class ProductInquiryForm(forms.ModelForm):
     class Meta:
         model = ProductInquiry
         fields = ["inquiry"]
+
+
+
+

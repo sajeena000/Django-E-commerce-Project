@@ -12,8 +12,12 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
+#from .forms import CheckoutForm
 from requests import session
 from taggit.models import Tag
+
+
+from django.db.models import Min, Max
 
 from core.forms import ProductInquiryForm, ProductReviewForm
 from core.models import (
@@ -44,17 +48,40 @@ def index(request):
 
 def product_list_view(request):
     products = Product.objects.filter(product_status="published").order_by("-id")
+
+    # Get the minimum and maximum price from the available products
+    min_max_price = products.aggregate(Min('price'), Max('price'))
+    
+    # Get price filter values from the request (default to min and max price if not provided)
+    min_price = request.GET.get('min_price', min_max_price['price__min'])
+    max_price = request.GET.get('max_price', min_max_price['price__max'])
+    # Convert to float for accurate comparison
+    try:
+        min_price = float(min_price)
+        max_price = float(max_price)
+    except ValueError:
+        min_price = min_max_price['price__min']
+        max_price = min_max_price['price__max']
+
+
+    # Filter products by price range
+    if min_price and max_price:
+        products = products.filter(price__gte=min_price, price__lte=max_price)
+
+    # Get the latest 6 tags
     tags = Tag.objects.all().order_by("-id")[:6]
 
     context = {
         "products": products,
         "tags": tags,
+        "min_max_price": min_max_price,
     }
 
     return render(request, "core/product-list.html", context)
 
 
-@login_required
+#@login_required
+
 def ajax_add_inquiry(request, pid):
     product = get_object_or_404(Product, pid=pid)
     if request.method == "POST":
@@ -87,7 +114,7 @@ def category_product_list__view(request, cid):
     return render(request, "core/category-product-list.html", context)
 
 
-@login_required
+#@login_required
 def product_detail_view(request, pid):
     product = get_object_or_404(Product, pid=pid)
     products = Product.objects.filter(category=product.category).exclude(pid=pid)
@@ -442,6 +469,8 @@ def checkout_view(request):
         )
 
 
+
+
 @login_required
 def gift_item(request, item_id):
     # Get the item to gift
@@ -702,3 +731,5 @@ def privacy_policy(request):
 
 def terms_of_service(request):
     return render(request, "core/terms_of_service.html")
+
+

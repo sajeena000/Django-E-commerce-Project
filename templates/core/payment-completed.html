@@ -8,10 +8,6 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta property="og:title" content="" />
-    <meta property="og:type" content="" />
-    <meta property="og:url" content="" />
-    <meta property="og:image" content="" />
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/imgs/theme/favicon.svg' %}" />
     <link rel="stylesheet" href="{% static 'assets/css/main.css' %}" />
@@ -20,7 +16,7 @@
 <body>
     <div class="invoice invoice-content invoice-5">
         <div class="back-top-home justify-content-center align-items-center text-center hover-up mt-30 ml-30 pb-4">
-            <h3><a class="hover-up" href=""><i class="fi-rs-settings-sliders mr-5"></i> Dashboard</a></h3>
+            <h3><a class="hover-up" href="{% url 'core:dashboard' %}"><i class="fi-rs-settings-sliders mr-5"></i> Dashboard</a></h3>
         </div>
         <div class="container">
             <div class="row">
@@ -58,14 +54,14 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for product_id, item in cart_data.items %}
+                                            {% for item in cart_data.values %}
                                             <tr>
                                                 <td>
                                                     <div class="item-desc-1">
-                                                        <span>{{item.title}}</span>
+                                                        <span>{{ item.title }}</span>
                                                     </div>
                                                 </td>
-                                                <td class="text-center">${{item.price}}</td>
+                                                <td class="text-center">${{ item.price }}</td>
                                                 <td class="text-center">{{ item.qty }}</td>
                                                 <td class="text-right">${% widthratio item.price 1 item.qty %}.00</td>
                                             </tr>
@@ -73,15 +69,11 @@
 
                                             <tr>
                                                 <td colspan="3" class="text-end f-w-600">SubTotal</td>
-                                                <td class="text-right">${{cart_total_amount}}</td>
+                                                <td class="text-right">${{ cart_total_amount }}</td>
                                             </tr>
-                                            <!-- <tr>
-                                                <td colspan="3" class="text-end f-w-600">Tax</td>
-                                                <td class="text-right">$85.99</td>
-                                            </tr> -->
                                             <tr>
                                                 <td colspan="3" class="text-end f-w-600">Grand Total</td>
-                                                <td class="text-right f-w-600">${{cart_total_amount}}</td>
+                                                <td class="text-right f-w-600">${{ cart_total_amount }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -90,20 +82,37 @@
                             <div class="invoice-bottom pb-80">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <h6 class="mb-15">Invoice Information</h6>
+                                        <h6 class="mb-15">Billing Information</h6>
                                         <p class="font-sm">
-                                            <strong>Invoice To:</strong> {{request.user|title}}<br />
+                                            <strong>Name:</strong> {{ billing_address.fname }} {{ billing_address.lname }}<br />
+                                            <strong>Email:</strong> {{ billing_address.email }}<br />
+                                            <strong>Mobile:</strong> {{ billing_address.mobile }}<br />
+                                            <strong>Address:</strong> {{ billing_address.address }}<br />
+                                            <strong>Street Address:</strong> {{ billing_address.street_address }}<br />
+                                            <strong>City:</strong> {{ billing_address.city }}<br />
+                                            <strong>State:</strong> {{ billing_address.state }}<br />
+                                            <strong>Postal Code:</strong> {{ billing_address.postal_code }}<br />
+                                            <strong>Country:</strong> {{ billing_address.country }}<br />
                                         </p>
                                     </div>
                                     <div class="col-md-6 text-end">
-                                        <h6 class="mb-15">Total Amount</h6>
-                                        <h3 class="mt-0 mb-0 text-brand">${{cart_total_amount}}</h3>
-                                        <p class="mb-0 text-muted">Taxes Included</p>
+                                        <h6 class="mb-15">Shipping Information</h6>
+                                        <p class="font-sm">
+                                            <strong>Name:</strong> {{ shipping_address.fname }} {{ shipping_address.lname }}<br />
+                                            <strong>Email:</strong> {{ shipping_address.email }}<br />
+                                            <strong>Mobile:</strong> {{ shipping_address.mobile }}<br />
+                                            <strong>Address:</strong> {{ shipping_address.address }}<br />
+                                            <strong>Street Address:</strong> {{ shipping_address.street_address }}<br />
+                                            <strong>City:</strong> {{ shipping_address.city }}<br />
+                                            <strong>State:</strong> {{ shipping_address.state }}<br />
+                                            <strong>Postal Code:</strong> {{ shipping_address.postal_code }}<br />
+                                            <strong>Country:</strong> {{ shipping_address.country }}<br />
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="row text-center">
                                     <div class="hr mt-30 mb-30"></div>
-                                    <p class="mb-0 text-muted"><strong>Hey {{ request.user|title }}, </strong>Thanks for our shopping</p>
+                                    <p class="mb-0 text-muted"><strong>Hey {{ request.user.username|title }}, </strong>Thanks for shopping with us!</p>
                                 </div>
                             </div>
                         </div>
