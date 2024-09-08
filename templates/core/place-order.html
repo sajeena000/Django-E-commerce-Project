@@ -22,28 +22,69 @@
             </div>
             <div class="row">
                 <div class="col-lg-7">
-          
-                        <h4>Billing Information</h4>
-                        <br/>
-                        <div>Name: {{ billing.name }}</div>
-                        <div>Email: {{ billing.email }}</div>
-                        <div>Phone: {{ billing.phone }}</div>
-                        <div>Street Address: {{ billing.street_address }}</div>
-                        <div>City: {{ billing.city }}</div>
-                        <div>State: {{ billing.state }}</div>
-                        <div>Postal Code: {{ billing.postal_code }}</div>
-                        <div>Country: {{ billing.country }}</div>                        
-        
-                        <h4 class="mt-30">Shipping Information</h4>
-                        <br/>
-                        <div>Name: {{ shipping.name }}</div>
-                        <div>Email: {{ shipping.email }}</div>
-                        <div>Phone: {{ shipping.phone }}</div>
-                        <div>Street Address: {{ shipping.street_address }}</div>
-                        <div>City: {{ shipping.city }}</div>
-                        <div>State: {{ shipping.state }}</div>
-                        <div>Postal Code: {{ shipping.postal_code }}</div>
-                        <div>Country: {{ shipping.country }}</div>    
+                    <div class="row">
+                        <h4 class="mb-30">Billing Information</h4>
+                        <form method="post" action="{% url 'core:checkout' %}" class="row" id="placeOrderForm">
+                            {% csrf_token %}
+
+
+                            {% for field in billing_form %}
+                            <div class="form-group col-lg-6">
+                       
+                                {{ field.label_tag }}
+
+                                <input
+                                type="text"
+                                id="{{field.html_name}}"
+                                name="{{field.html_name}}"
+                                placeholder="Enter {{field.html_name}}."
+                                class="form-control"
+                                value="{{ field.value|default:'' }}"
+                              />
+
+                              {{ field.errors }}
+
+                                {% if field.help_text %}
+                                  <p class="help" id="{{ field.auto_id }}_helptext">
+                                    {{ field.help_text|safe }}
+                                  </p>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+
+ 
+
+                            <!-- Shipping Information -->
+                            <h4 class="mb-30">Shipping Information</h4>
+                                {% for field in shipping_form %}
+                                <div class="form-group col-lg-6">
+                                  
+                                    {{ field.label_tag }} 
+
+                                    <input
+                                    type="text"
+                                    id="{{field.html_name}}"
+                                    name="{{field.html_name}}"
+                                    placeholder="Enter {{field.html_name}}."
+                                    class="form-control"
+                                    value="{{ field.value|default:'' }}"
+                                  />
+
+                                  {{ field.errors }}
+
+                                    {% if field.help_text %}
+                                    <p class="help" id="{{ field.auto_id }}_helptext">
+                                        {{ field.help_text|safe }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+
+                            <!-- <div class="form-group">
+                                <button type="submit" class="btn btn-fill-out btn-block mt-30">Place Order</button>
+                            </div> -->
+                        </form>
+                    </div>
                 </div>
                 <div class="col-lg-5">
                     <div class="border p-40 cart-totals ml-30 mb-50">
@@ -79,26 +120,7 @@
                         </div>
                     </div>
                     <div class="payment ml-30">
-                        <h4 class="mb-30">Payment Options</h4>
-                        <div class="payment_option">
-                            <div class="custome-radio">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios3" checked="">
-                                <label class="form-check-label" for="exampleRadios3" data-bs-toggle="collapse" data-target="#bankTranfer" aria-controls="bankTranfer">PayPal</label>
-                            </div>
-                            <div class="custome-radio">
-                                <input class="form-check-input" required="" type="radio" name="payment_option" id="exampleRadios5" checked="">
-                                <label class="form-check-label" for="exampleRadios5" data-bs-toggle="collapse" data-target="#paypal" aria-controls="paypal">Credit/Debit Cards</label>
-                            </div>
-                        </div>
-                        <div class="payment-logo d-flex">
-                            <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-paypal.svg' %}" alt="">
-                            <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-visa.svg' %}" alt="">
-                            <img class="mr-15" src="{% static 'assets/imgs/theme/icons/payment-master.svg' %}" alt="">
-                            <img src="{% static 'assets/imgs/theme/icons/payment-zapper.svg' %}" alt="">
-                        </div>
-                        <div class="w-50">
-                            {{paypal_payment_button.render}}
-                        </div>
+                        <button type="submit" class="btn btn-fill-out btn-block mt-30" form="placeOrderForm">Place Order</button>
                     </div>
                 </div>
             </div>
