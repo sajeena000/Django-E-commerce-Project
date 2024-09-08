@@ -195,7 +195,8 @@
 
 
                   <div class="header-action-icon-2">
-                    <a href="{% url 'core:dashboard' %}"><i class="{{request.session.currency_icon}}"></i></a>
+                    <a href="{% url 'core:dashboard' %}"><i class="{{request.session.currency_icon}}" style="font-size:18px"></i></a>
+                      &nbsp;
                     <a href="{% url 'core:dashboard' %}"><span class="lable ml-0">Currency</span></a>
                     <div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
                       <ul>
@@ -212,6 +213,11 @@
                       <li>
                           <a href="{% url 'core:update-currency' 'CAD' 'Canadian Dollar' '1.36' 'fab fa-canadian-maple-leaf' %}">
                               CA<i class="fas fa-dollar-sign"></i> Canadian dollar
+                          </a>
+                      </li>
+                      <li>
+                          <a href="{% url 'core:update-currency' 'NRS' 'Nepali Rupees' '134.58' 'fa-solid fa-rupee-sign' %}">
+                            <i class="fa-solid fa-rupee-sign"></i> Nepali Rupees
                           </a>
                       </li>
                       

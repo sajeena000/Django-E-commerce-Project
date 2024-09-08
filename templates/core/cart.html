@@ -82,7 +82,14 @@
             <tbody>
               <tr>
                 <td class="text-muted">Subtotal</td>
-                <td class="text-end text-brand">${{ cart_total_amount|floatformat:2 }}</td>
+                <td class="text-end text-brand">
+                  {% if request.session.exchange_rate %}
+                  <i class="{{request.session.currency_icon}}"></i>
+                  {% else %}
+                    {{"$"}}
+                  {% endif %} 
+                  
+                  {{ cart_total_amount|floatformat:2 }}</td>
               </tr>
               <tr>
                 <td colspan="2"><hr></td>
@@ -93,7 +100,14 @@
               </tr>
               <tr>
                 <td class="text-muted">Total</td>
-                <td class="text-end text-brand">${{ cart_total_amount|floatformat:2 }}</td>
+                <td class="text-end text-brand">
+                  
+                  {% if request.session.exchange_rate %}
+                  <i class="{{request.session.currency_icon}}"></i>
+                  {% else %}
+                    {{"$"}}
+                  {% endif %} 
+                  {{ cart_total_amount|floatformat:2 }}</td>
               </tr>
             </tbody>
           </table>
