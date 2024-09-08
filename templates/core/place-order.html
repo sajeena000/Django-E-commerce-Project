@@ -56,7 +56,7 @@
 
                             <!-- Shipping Information -->
                             <h4 class="mb-30">Shipping Information</h4>
-                                {% for field in billing_form %}
+                                {% for field in shipping_form %}
                                 <div class="form-group col-lg-6">
                                   
                                     {{ field.label_tag }} 
@@ -71,7 +71,7 @@
                                   />
 
                                   {{ field.errors }}
-                                  
+
                                     {% if field.help_text %}
                                     <p class="help" id="{{ field.auto_id }}_helptext">
                                         {{ field.help_text|safe }}
