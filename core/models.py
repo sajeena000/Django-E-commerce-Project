@@ -188,6 +188,8 @@ class BillingInfo(models.Model):
     state = models.CharField(max_length=100)
     postal_code = models.CharField(max_length=10)
     country = models.CharField(max_length=100)
+    payment_method = models.CharField(max_length=100, null=True)
+    #naya column add garda there should be either default value or null = True
 
     def __str__(self):
         return f"Billing Info for {self.name}"
