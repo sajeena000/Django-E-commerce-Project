@@ -39,19 +39,46 @@
                                 <span>{{ item.title }}</span>
                             </div>
                         </td>
-                        <td class="text-center">${{ item.price }}</td>
+                        <td class="text-center">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                            {{"$"}}
+                            {% endif %} 
+                            
+                            {{ item.price }}
+                        </td>
                         <td class="text-center">{{ item.qty }}</td>
-                        <td class="text-right">${% widthratio item.price 1 item.qty %}.00</td>
+                        <td class="text-right">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                                {{"$"}}
+                            {% endif %}
+                            {% widthratio item.price 1 item.qty %}.00</td>
                     </tr>
                     {% endfor %}
 
                     <tr>
                         <td colspan="3" class="text-end f-w-600">SubTotal</td>
-                        <td class="text-right">${{ cart_total_amount }}</td>
+                        <td class="text-right">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                                {{"$"}}
+                            {% endif %}
+                            
+                            {{ cart_total_amount }}</td>
                     </tr>
                     <tr>
                         <td colspan="3" class="text-end f-w-600">Grand Total</td>
-                        <td class="text-right f-w-600">${{ cart_total_amount }}</td>
+                        <td class="text-right f-w-600">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                            {{"$"}}
+                            {% endif %}
+                            {{ cart_total_amount }}</td>
                     </tr>
                 </tbody>
             </table>

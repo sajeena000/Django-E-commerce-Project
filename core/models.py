@@ -257,6 +257,7 @@ class wishlist_model(models.Model):
 
     class Meta:
         verbose_name_plural = "wishlists"
+        
 
 
 class Address(models.Model):

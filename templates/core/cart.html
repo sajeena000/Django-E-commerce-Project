@@ -44,11 +44,25 @@
                   <td class="product-des">
                     <h6 class="mb-2"><a class="text-heading" href="{% url 'core:product-detail' item.pid %}">{{ item.title }}</a></h6>
                   </td>
-                  <td class="price">${{ item.price }}</td>
+                  <td class="price">
+                    {% if request.session.exchange_rate %}
+                    <i class="{{request.session.currency_icon}}"></i>
+                    {% else %}
+                      {{"$"}}
+                    {% endif %} 
+                    {{ item.price }}</td>
                   <td class="text-center">
                     <input type="number" class="form-control w-50 mx-auto text-center product-qty-{{ product_id }}" value="{{ item.qty }}">
                   </td>
-                  <td class="price">${{ item.subtotal|floatformat:2 }}</td>
+                  <td class="price">
+                    {% if request.session.exchange_rate %}
+                       <i class="{{request.session.currency_icon}}"></i>
+                    {% else %}
+                      {{"$"}}
+                    {% endif %}  
+                    {{ item.subtotal|floatformat:2 }}
+                  
+                  </td>
                   <td class="text-center">
                     <button class="btn btn-link update-product px-3" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button>
                   </td>

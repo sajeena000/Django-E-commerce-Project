@@ -30,6 +30,7 @@ from core.views import (
     search_view,
     tag_list,
     terms_of_service,
+    update_currency,
     update_cart,
     wishlist_view,
 )
@@ -52,6 +53,7 @@ urlpatterns = [
     path("add-to-cart/", add_to_cart, name="add-to-cart"),
     path("cart/", cart_view, name="cart"),
     path("delete-from-cart/", delete_item_from_cart, name="delete-from-cart"),
+    path("update-currency/<str:currency_code>/<str:currency>/<str:exchange_rate>/<str:currency_icon>", update_currency, name="update-currency"),
     path("update-cart/", update_cart, name="update-cart"),
     path("place-an-order/", place_order_view, name="place-an-order"),
     path("checkout/", checkout_view, name="checkout"),

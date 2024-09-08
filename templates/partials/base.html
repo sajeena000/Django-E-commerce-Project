@@ -177,6 +177,7 @@
               </div>
               <div class="header-action-right">
                 <div class="header-action-2">
+
                   <div class="search-location">
                     <form action="#">
                       <select class="select-active">
@@ -190,13 +191,35 @@
                       </select>
                     </form>
                   </div>
-                  <!--   <div class="header-action-icon-2">
-                                    <a href="shop-compare.html">
-                                        <img class="svgInject" alt="Nest" src="{% static 'assets/imgs/theme/icons/icon-compare.svg' %}" />
-                                        <span class="pro-count blue ">3</span>
-                                    </a>
-                                    <a href="shop-compare.html"><span class="lable ml-0">Compare</span></a>
-                                </div>   -->
+
+
+
+                  <div class="header-action-icon-2">
+                    <a href="{% url 'core:dashboard' %}"><i class="{{request.session.currency_icon}}"></i></a>
+                    <a href="{% url 'core:dashboard' %}"><span class="lable ml-0">Currency</span></a>
+                    <div class="cart-dropdown-wrap cart-dropdown-hm2 account-dropdown">
+                      <ul>
+                        <li>
+                          <a href="{% url 'core:update-currency' 'USD' 'United States Dollar' '1' 'fas fa-dollar-sign' %}">
+                              <i class="fas fa-dollar-sign"></i> United States dollar
+                          </a>
+                      </li>
+                      <li>
+                          <a href="{% url 'core:update-currency' 'GBP' 'Pound Sterling' '0.76' 'fas fa-pound-sign' %}">
+                              <i class="fas fa-pound-sign"></i> Pound sterling
+                          </a>
+                      </li>
+                      <li>
+                          <a href="{% url 'core:update-currency' 'CAD' 'Canadian Dollar' '1.36' 'fab fa-canadian-maple-leaf' %}">
+                              CA<i class="fas fa-dollar-sign"></i> Canadian dollar
+                          </a>
+                      </li>
+                      
+                      </ul>
+                    </div>
+                  </div>
+
+
                   <div class="header-action-icon-2">
                     <a href="{% url 'core:wishlist' %}">
                       <img class="svgInject" alt="Nest" src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}" />
