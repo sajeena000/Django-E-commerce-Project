@@ -246,3 +246,47 @@ class ProductInquiry(models.Model):
 
     def __str__(self):
         return f"Inquiry by {self.user.username} on {self.product.title}"
+
+
+
+# from django.db import models
+# from django.conf import settings  # Import settings to access AUTH_USER_MODEL
+
+# class BillingInfo(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Use AUTH_USER_MODEL
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()
+#     phone = models.CharField(max_length=15)
+#     street_address = models.CharField(max_length=255)
+#     city = models.CharField(max_length=100)
+#     state = models.CharField(max_length=100)
+#     postal_code = models.CharField(max_length=10)
+#     country = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return f"Billing Info for {self.user.username}"
+
+# class ShippingInfo(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Use AUTH_USER_MODEL
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()
+#     phone = models.CharField(max_length=15)
+#     street_address = models.CharField(max_length=255)
+#     city = models.CharField(max_length=100)
+#     state = models.CharField(max_length=100)
+#     postal_code = models.CharField(max_length=10)
+#     country = models.CharField(max_length=100)
+
+#     def __str__(self):
+#         return f"Shipping Info for {self.user.username}"
+
+# class Order(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Use AUTH_USER_MODEL
+#     billing_info = models.OneToOneField(BillingInfo, on_delete=models.CASCADE)
+#     shipping_info = models.OneToOneField(ShippingInfo, on_delete=models.CASCADE)
+#     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return f"Order {self.id} by {self.user.username}"
+

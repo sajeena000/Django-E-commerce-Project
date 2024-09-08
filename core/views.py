@@ -12,11 +12,8 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
-#from .forms import CheckoutForm
 from requests import session
 from taggit.models import Tag
-
-
 from django.db.models import Min, Max
 
 from core.forms import ProductInquiryForm, ProductReviewForm
@@ -34,7 +31,7 @@ from core.models import (
 )
 from userauths.models import ContactUs, Profile
 
-
+#Index
 def index(request):
     # bannanas = Product.objects.all().order_by("-id")
     products = Product.objects.filter(
@@ -45,7 +42,7 @@ def index(request):
 
     return render(request, "core/index.html", context)
 
-
+#Product List View
 def product_list_view(request):
     products = Product.objects.filter(product_status="published").order_by("-id")
 
@@ -79,7 +76,7 @@ def product_list_view(request):
 
     return render(request, "core/product-list.html", context)
 
-
+#Add inquiry
 #@login_required
 
 def ajax_add_inquiry(request, pid):
@@ -471,6 +468,8 @@ def checkout_view(request):
 
 
 
+
+
 @login_required
 def gift_item(request, item_id):
     # Get the item to gift
@@ -647,6 +646,7 @@ def make_address_default(request):
     Address.objects.update(status=False)
     Address.objects.filter(id=id).update(status=True)
     return JsonResponse({"boolean": True})
+
 
 
 @login_required
