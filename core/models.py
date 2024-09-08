@@ -179,7 +179,7 @@ class CartOrderProducts(models.Model):
         
 
 class BillingInfo(models.Model):
-    order = models.ForeignKey(CartOrder, on_delete=models.CASCADE)
+    order = models.OneToOneField(CartOrder, related_name='billing', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=15)
@@ -192,10 +192,10 @@ class BillingInfo(models.Model):
     #naya column add garda there should be either default value or null = True
 
     def __str__(self):
-        return f"Billing Info for {self.name}"
+        return f"Billing Info for {self.name}"     
 
 class ShippingInfo(models.Model):
-    order = models.ForeignKey(CartOrder, on_delete=models.CASCADE)
+    order = models.OneToOneField(CartOrder, related_name='shipping', on_delete=models.CASCADE) 
     name = models.CharField(max_length=255)
     email = models.EmailField()
     phone = models.CharField(max_length=15)

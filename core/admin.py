@@ -20,7 +20,15 @@ class CategoryAdmin(admin.ModelAdmin):
 class CartOrderAdmin(admin.ModelAdmin):
     list_editable = ['paid_status', 'product_status', 'sku']
     list_display = ['user',  'price', 'paid_status',
-                    'order_date', 'product_status', 'sku']
+                    'order_date', 'product_status','billing_address', 'shipping_address', 'sku']
+    
+    def billing_address(self, CartOrder):
+        billing = CartOrder.billing
+        return f"{billing.street_address}, {billing.city}, {billing.country}"
+    
+    def shipping_address(self, CartOrder):
+        shipping = CartOrder.shipping
+        return f"{shipping.street_address}, {shipping.city}, {shipping.country}"
 
 
 class CartOrderProductsAdmin(admin.ModelAdmin):
