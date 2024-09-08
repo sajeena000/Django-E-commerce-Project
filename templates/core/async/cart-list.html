@@ -49,11 +49,18 @@
                                 <td class="product-des">
                                     <h6 class="mb-2"><a class="text-heading" href="{% url 'core:product-detail' item.pid %}">{{ item.title }}</a></h6>
                                 </td>
-                                <td class="price">${{item.price|floatformat:2}}</td>
+                                <td class="price">
+                                    {{ currency_icon | safe }}
+                                    
+                                    {{item.price|floatformat:2}}</td>
                                 <td class="text-center">
                                     <input type="number" class="form-control w-50 mx-auto text-center" value="{{ item.qty }}">
                                 </td>
-                                <td class="price">${% widthratio item.price 1 item.qty %}</td>
+                                <td class="price">
+                                    {{ currency_icon | safe }}
+
+                                    
+                                    {% widthratio item.price 1 item.qty %}</td>
                                 <td class="text-center">
                                     <button class="btn btn-link update-product" data-product="{{ product_id }}"><i class="fi-rs-refresh"></i></button>
                                 </td>
@@ -72,7 +79,10 @@
                         <tbody>
                             <tr>
                                 <td class="text-muted">Subtotal</td>
-                                <td class="text-end text-brand">${{cart_total_amount|floatformat:2}}</td>
+                                <td class="text-end text-brand">
+                                    {{ currency_icon | safe }}
+                                    
+                                    {{cart_total_amount|floatformat:2}}</td>
                             </tr>
                             <tr>
                                 <td colspan="2"><hr></td>
@@ -83,7 +93,10 @@
                             </tr>
                             <tr>
                                 <td class="text-muted">Total</td>
-                                <td class="text-end text-brand">${{cart_total_amount|floatformat:2}}</td>
+                                <td class="text-end text-brand">
+                                    {{ currency_icon | safe }}
+                                    
+                                    {{cart_total_amount|floatformat:2}}</td>
                             </tr>
                         </tbody>
                     </table>

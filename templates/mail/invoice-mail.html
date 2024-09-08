@@ -5,42 +5,127 @@
     <style>
         /* Inline CSS */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
         }
 
         .email-container {
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+            max-width: 650px;
+            margin: 40px auto;
             background-color: #ffffff;
             border: 1px solid #dddddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
         .header {
-            background-color: #007bff;
+            background-color: #FF885B;
             color: #ffffff;
             text-align: center;
             padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
         .content {
-            padding: 20px;
+            padding: 40px;
+            font-size: 16px;
+            line-height: 1.8;
         }
 
-        .image {
-            max-width: 100%;
-            height: auto;
+        .content p {
+            margin-bottom: 25px;
+        }
+
+        .table-responsive {
+            margin-top: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+        }
+
+        table td.text-right {
+            text-align: right;
+        }
+
+        .thank-you {
+            font-style: italic;
+            margin-bottom: 25px;
+            color: #555;
+        }
+
+        .discount {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            border-radius: 6px;
+            border: 1px dashed #cccccc;
+        }
+
+        .discount p {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+            color: #d9534f;
+        }
+
+        .support {
+            font-size: 14px;
+            margin-bottom: 25px;
         }
 
         .footer {
             background-color: #f0f0f0;
+            color: #777;
             text-align: center;
-            padding: 10px;
+            padding: 20px;
             font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 600px) {
+            .email-container {
+                width: 100%;
+                padding: 10px;
+            }
+
+            .content, .header, .footer {
+                padding: 30px;
+            }
+
+            table th, table td {
+                padding: 12px;
+            }
         }
     </style>
+
+
+
 </head>
 <body>
     <div class="email-container">
@@ -48,8 +133,9 @@
             <h1>Invoice</h1>
         </div>
         <div class="content">
-            <p>Hello {{ request.user.username }},</p>
-            <p>Your order has been placed.</p>
+            <p>Hello{{ request.user.username }},</p>
+            <!-- <p>Your order has been placed!</p> -->
+            <p>Your order has been placed! Thank you for choosing <strong>Mountain Artisan Collective</strong>. We hope you enjoy your purchase!</p>
           
             <div class="table-responsive">
                 <table border="1" width="100%" >
@@ -70,19 +156,11 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                {% if request.session.exchange_rate %}
-                                <i class="{{request.session.currency_icon}}"></i>
-                                {% else %}
-                                {{"$"}}
-                                {% endif %}
+                                {{currency_code}}
                                 {{ item.price }}</td>
                             <td class="text-center">{{ item.qty }}</td>
                             <td class="text-right">
-                                {% if request.session.exchange_rate %}
-                                <i class="{{request.session.currency_icon}}"></i>
-                                {% else %}
-                                {{"$"}}
-                                {% endif %}
+                                {{currency_code}}
                                 {% widthratio item.price 1 item.qty %}.00</td>
                         </tr>
                         {% endfor %}
@@ -90,30 +168,36 @@
                         <tr>
                             <td colspan="3" class="text-end f-w-600">SubTotal</td>
                             <td class="text-right">
-                                {% if request.session.exchange_rate %}
-                                <i class="{{request.session.currency_icon}}"></i>
-                                {% else %}
-                                {{"$"}}
-                                {% endif %}
+                                {{currency_code}}
                                 {{ cart_total_amount }}</td>
                         </tr>
                         <tr>
                             <td colspan="3" class="text-end f-w-600">Grand Total</td>
                             <td class="text-right f-w-600">
-                                {% if request.session.exchange_rate %}
-                                <i class="{{request.session.currency_icon}}"></i>
-                                {% else %}
-                                {{"$"}}
-                                {% endif %}
+                                {{currency_code}}
                                 {{ cart_total_amount }}</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="footer">
-            &copy; E-commerce
+
+        <p class="thank-you">We greatly appreciate your support of local artisans and their handcrafted products. Every purchase helps keep traditional craftsmanship alive!</p>
+
+        <div class="discount">
+            <p>As a token of our appreciation, here's a 10% discount code for your next purchase: <strong>THANKYOU10</strong></p>
+        </div>
+
+        <div class="support">
+            <p>If you have any questions or need further assistance, please don't hesitate to contact our customer support at <strong>support@mountainartisan.com</strong> or call us at <strong>123-456-7890</strong>.</p>
+            <p>Estimated delivery: {{ delivery_date }}. We’ll send a shipping confirmation once your order is on its way.</p>
         </div>
     </div>
+
+
+
+        <div class="footer">
+            &copy; 2024 Mountain Artisan Collective | Handmade with love in Kathmandu.
+        </div>
 </body>
 </html>

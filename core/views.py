@@ -377,7 +377,7 @@ def delete_item_from_cart(request):
 
     context = render_to_string(
         "core/async/cart-list.html",
-        {
+        {   "currency_icon" : f"<i class='{request.session['currency_icon']}'></i>" if request.session['currency_icon'] else "$",
             "cart_data": request.session["cart_data_obj"],
             "totalcartitems": len(request.session["cart_data_obj"]),
             "cart_total_amount": cart_total_amount,
@@ -676,6 +676,7 @@ def payment_completed_view(request, order_id):
         "cart_data": request.session["cart_data_obj"],
         "totalcartitems": len(request.session["cart_data_obj"]),
         "cart_total_amount": cart_total_amount,
+        "currency_code" : request.session["currency_code"] if request.session["currency_code"] else "USD"
     }
 
     receiver_email = [shipping.email,
