@@ -7,7 +7,7 @@ from django.core import serializers
 from django.db.models import Avg, Count
 from django.db.models.functions import ExtractMonth
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +16,7 @@ from requests import session
 from taggit.models import Tag
 from django.db.models import Min, Max
 
-from core.forms import ProductInquiryForm, ProductReviewForm
+from core.forms import ProductInquiryForm, ProductReviewForm, BillingInfoForm, ShippingInfoForm
 from core.models import (
     Address,
     CartOrder,
@@ -28,10 +28,14 @@ from core.models import (
     ProductInquiry,
     ProductReview,
     wishlist_model,
+    BillingInfo,
+    ShippingInfo
 )
 from userauths.models import ContactUs, Profile
 
-#Index
+# Index
+
+
 def index(request):
     # bannanas = Product.objects.all().order_by("-id")
     products = Product.objects.filter(
@@ -42,13 +46,16 @@ def index(request):
 
     return render(request, "core/index.html", context)
 
-#Product List View
+# Product List View
+
+
 def product_list_view(request):
-    products = Product.objects.filter(product_status="published").order_by("-id")
+    products = Product.objects.filter(
+        product_status="published").order_by("-id")
 
     # Get the minimum and maximum price from the available products
     min_max_price = products.aggregate(Min('price'), Max('price'))
-    
+
     # Get price filter values from the request (default to min and max price if not provided)
     min_price = request.GET.get('min_price', min_max_price['price__min'])
     max_price = request.GET.get('max_price', min_max_price['price__max'])
@@ -59,7 +66,6 @@ def product_list_view(request):
     except ValueError:
         min_price = min_max_price['price__min']
         max_price = min_max_price['price__max']
-
 
     # Filter products by price range
     if min_price and max_price:
@@ -76,8 +82,9 @@ def product_list_view(request):
 
     return render(request, "core/product-list.html", context)
 
-#Add inquiry
-#@login_required
+# Add inquiry
+# @login_required
+
 
 def ajax_add_inquiry(request, pid):
     product = get_object_or_404(Product, pid=pid)
@@ -102,7 +109,8 @@ def category_list_view(request):
 def category_product_list__view(request, cid):
 
     category = Category.objects.get(cid=cid)  # food, Cosmetics
-    products = Product.objects.filter(product_status="published", category=category)
+    products = Product.objects.filter(
+        product_status="published", category=category)
 
     context = {
         "category": category,
@@ -111,14 +119,16 @@ def category_product_list__view(request, cid):
     return render(request, "core/category-product-list.html", context)
 
 
-#@login_required
+# @login_required
 def product_detail_view(request, pid):
     product = get_object_or_404(Product, pid=pid)
-    products = Product.objects.filter(category=product.category).exclude(pid=pid)
+    products = Product.objects.filter(
+        category=product.category).exclude(pid=pid)
 
     # Get all reviews and inquiries related to the product
     reviews = ProductReview.objects.filter(product=product).order_by("-date")
-    inquiries = ProductInquiry.objects.filter(product=product).order_by("-created_at")
+    inquiries = ProductInquiry.objects.filter(
+        product=product).order_by("-created_at")
 
     # Calculate average rating in the same query
     average_rating = reviews.aggregate(rating=Avg("rating"))
@@ -190,7 +200,8 @@ def product_detail_view(request, pid):
 
 def tag_list(request, tag_slug=None):
 
-    products = Product.objects.filter(product_status="published").order_by("-id")
+    products = Product.objects.filter(
+        product_status="published").order_by("-id")
 
     tag = None
     if tag_slug:
@@ -247,7 +258,8 @@ def filter_product(request):
     max_price = request.GET["max_price"]
 
     products = (
-        Product.objects.filter(product_status="published").order_by("-id").distinct()
+        Product.objects.filter(
+            product_status="published").order_by("-id").distinct()
     )
 
     products = products.filter(price__gte=min_price)
@@ -262,7 +274,8 @@ def filter_product(request):
             .distinct()
         )
 
-    data = render_to_string("core/async/product-list.html", {"products": products})
+    data = render_to_string(
+        "core/async/product-list.html", {"products": products})
     return JsonResponse({"data": data})
 
 
@@ -316,7 +329,8 @@ def cart_view(request):
     cart_data = request.session.get("cart_data_obj", {})
     for p_id, item in cart_data.items():
         print(
-            f"Product ID: {p_id}, Price: {item['price']}, Quantity: {item['qty']}"
+            f"Product ID: {p_id}, Price: {
+                item['price']}, Quantity: {item['qty']}"
         )  # Debugging line
         try:
             subtotal = int(item["qty"]) * float(item["price"])
@@ -336,16 +350,13 @@ def cart_view(request):
     )
 
 
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-
-
 def delete_item_from_cart(request):
     product_id = str(request.GET.get("id"))
     if "cart_data_obj" in request.session:
         cart_data = request.session["cart_data_obj"]
         if product_id in cart_data:
-            del cart_data[product_id]  # Correctly delete the item from cart_data
+            # Correctly delete the item from cart_data
+            del cart_data[product_id]
             request.session["cart_data_obj"] = cart_data  # Update the session
             print(f"Deleted product {product_id} from cart")  # Debugging line
         else:
@@ -370,7 +381,8 @@ def delete_item_from_cart(request):
         },
     )
     return JsonResponse(
-        {"data": context, "totalcartitems": len(request.session["cart_data_obj"])}
+        {"data": context, "totalcartitems": len(
+            request.session["cart_data_obj"])}
     )
 
 
@@ -398,76 +410,131 @@ def update_cart(request):
         },
     )
     return JsonResponse(
-        {"data": context, "totalcartitems": len(request.session["cart_data_obj"])}
+        {"data": context, "totalcartitems": len(
+            request.session["cart_data_obj"])}
+    )
+
+
+@login_required
+def place_order_view(request):
+    cart_total_amount = 0
+    total_amount = 0
+    billing_form = BillingInfoForm()
+    shipping_form = ShippingInfoForm()
+
+    active_address = Address.objects.filter(
+        user=request.user, status=True).first()
+
+    # Getting total amount for Paypal Amount
+    for p_id, item in request.session["cart_data_obj"].items():
+        total_amount += int(item["qty"]) * float(item["price"])
+
+        # Getting total amount for The Cart
+    for p_id, item in request.session["cart_data_obj"].items():
+        cart_total_amount += int(item["qty"]) * float(item["price"])
+
+    return render(
+        request,
+        "core/place-order.html",
+        {
+            "cart_data": request.session["cart_data_obj"],
+            "totalcartitems": len(request.session["cart_data_obj"]),
+            "cart_total_amount": cart_total_amount,
+            "active_address": active_address,
+            "billing_form": billing_form,
+            "shipping_form": shipping_form
+        },
     )
 
 
 @login_required
 def checkout_view(request):
-    cart_total_amount = 0
-    total_amount = 0
+    if request.method == 'POST':
+        cart_total_amount = 0
+        total_amount = 0
+        order = None
+        billing = None
+        shipping = None
 
-    # Checking if cart_data_obj session exists
-    if "cart_data_obj" in request.session:
+        # Checking if cart_data_obj session exists
+        if "cart_data_obj" in request.session:
 
-        # Getting total amount for Paypal Amount
-        for p_id, item in request.session["cart_data_obj"].items():
-            total_amount += int(item["qty"]) * float(item["price"])
+            # Getting total amount for Paypal Amount
+            for p_id, item in request.session["cart_data_obj"].items():
+                total_amount += int(item["qty"]) * float(item["price"])
 
-        # Create ORder Object
-        order = CartOrder.objects.create(user=request.user, price=total_amount)
+            billing_form = BillingInfoForm(data=request.POST)
+            shipping_form = ShippingInfoForm(data=request.POST)
 
-        # Getting total amount for The Cart
-        for p_id, item in request.session["cart_data_obj"].items():
-            cart_total_amount += int(item["qty"]) * float(item["price"])
+            if billing_form.is_valid() and shipping_form.is_valid():
 
-            cart_order_products = CartOrderProducts.objects.create(
-                order=order,
-                invoice_no="INVOICE_NO-" + str(order.id),  # INVOICE_NO-5,
-                item=item["title"],
-                image=item["image"],
-                qty=item["qty"],
-                price=item["price"],
-                total=float(item["qty"]) * float(item["price"]),
+                # Create ORder Object
+                order = CartOrder.objects.create(
+                    user=request.user, price=total_amount)
+
+                # save billings
+                billing = billing_form.save(commit=False)
+                billing.order = order
+                billing.save()
+
+                shipping = shipping_form.save(commit=False)
+                shipping.order = order
+                shipping.save()
+            else:
+                messages.warning(
+                    request, "Something went wrong, Please try again."
+                )
+                error = billing_form.errors
+                a = list(error.as_data())
+                print(a)
+                return HttpResponse('form error')
+                return redirect(request.META.get('HTTP_REFERER'))
+
+            # Getting total amount for The Cart
+            for p_id, item in request.session["cart_data_obj"].items():
+                cart_total_amount += int(item["qty"]) * float(item["price"])
+
+                cart_order_products = CartOrderProducts.objects.create(
+                    order=order,
+                    invoice_no="INVOICE_NO-" + str(order.id),  # INVOICE_NO-5,
+                    item=item["title"],
+                    image=item["image"],
+                    qty=item["qty"],
+                    price=item["price"],
+                    total=float(item["qty"]) * float(item["price"]),
+                )
+
+            host = request.get_host()
+            paypal_dict = {
+                "business": settings.PAYPAL_RECEIVER_EMAIL,
+                "amount": cart_total_amount,
+                "item_name": "Order-Item-No-" + str(order.id),
+                "invoice": "INVOICE_NO-" + str(order.id),
+                "currency_code": "USD",
+                "notify_url": "http://{}{}".format(host, reverse("core:paypal-ipn")),
+                "return_url": "http://{}{}".format(host, reverse("core:payment-completed", kwargs={"order_id": order.id})),
+                "cancel_url": "http://{}{}".format(host, reverse("core:payment-failed")),
+            }
+        
+
+            paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
+
+            active_address = Address.objects.filter(
+                user=request.user, status=True).first()
+
+            return render(
+                request,
+                "core/checkout.html",
+                {
+                    "cart_data": request.session["cart_data_obj"],
+                    "totalcartitems": len(request.session["cart_data_obj"]),
+                    "cart_total_amount": cart_total_amount,
+                    "paypal_payment_button": paypal_payment_button,
+                    "active_address": active_address,
+                    "billing": billing,
+                    "shipping": shipping
+                },
             )
-
-        host = request.get_host()
-        paypal_dict = {
-            "business": settings.PAYPAL_RECEIVER_EMAIL,
-            "amount": cart_total_amount,
-            "item_name": "Order-Item-No-" + str(order.id),
-            "invoice": "INVOICE_NO-" + str(order.id),
-            "currency_code": "USD",
-            "notify_url": "http://{}{}".format(host, reverse("core:paypal-ipn")),
-            "return_url": "http://{}{}".format(host, reverse("core:payment-completed")),
-            "cancel_url": "http://{}{}".format(host, reverse("core:payment-failed")),
-        }
-
-        paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
-
-        try:
-            active_address = Address.objects.get(user=request.user, status=True)
-        except:
-            messages.warning(
-                request, "There are multiple addresses, only one should be activated."
-            )
-            active_address = None
-
-        return render(
-            request,
-            "core/checkout.html",
-            {
-                "cart_data": request.session["cart_data_obj"],
-                "totalcartitems": len(request.session["cart_data_obj"]),
-                "cart_total_amount": cart_total_amount,
-                "paypal_payment_button": paypal_payment_button,
-                "active_address": active_address,
-            },
-        )
-
-
-
-
 
 
 @login_required
@@ -524,7 +591,8 @@ def gift_checkout(request):
     gift_total_amount = float(item.price)
 
     # Create an order for the gifted item
-    order = CartOrder.objects.create(user=request.user, price=gift_total_amount)
+    order = CartOrder.objects.create(
+        user=request.user, price=gift_total_amount)
 
     # Create the order products for the gifted item
     cart_order_products = CartOrderProducts.objects.create(
@@ -564,15 +632,24 @@ def gift_checkout(request):
 
 
 @login_required
-def payment_completed_view(request):
+def payment_completed_view(request, order_id):
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
         for p_id, item in request.session["cart_data_obj"].items():
             cart_total_amount += int(item["qty"]) * float(item["price"])
+
+    # Fetch the order, billing, and shipping info
+    order = get_object_or_404(CartOrder, pk=order_id)
+    billing = BillingInfo.objects.filter(order=order).first()
+    shipping = ShippingInfo.objects.filter(order=order).first()
+    
+    # print(order, billing, shipping)
     return render(
         request,
         "core/payment-completed.html",
         {
+            "billing": billing,
+            "shipping": shipping,
             "cart_data": request.session["cart_data_obj"],
             "totalcartitems": len(request.session["cart_data_obj"]),
             "cart_total_amount": cart_total_amount,
@@ -646,7 +723,6 @@ def make_address_default(request):
     Address.objects.update(status=False)
     Address.objects.filter(id=id).update(status=True)
     return JsonResponse({"boolean": True})
-
 
 
 @login_required
@@ -731,5 +807,3 @@ def privacy_policy(request):
 
 def terms_of_service(request):
     return render(request, "core/terms_of_service.html")
-
-
