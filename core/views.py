@@ -15,6 +15,9 @@ from paypal.standard.forms import PayPalPaymentsForm
 from requests import session
 from taggit.models import Tag
 from django.db.models import Min, Max
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from core.forms import ProductInquiryForm, ProductReviewForm, BillingInfoForm, ShippingInfoForm
 from core.models import (
@@ -419,8 +422,8 @@ def update_cart(request):
 def place_order_view(request):
     cart_total_amount = 0
     total_amount = 0
-    billing_form = BillingInfoForm()
-    shipping_form = ShippingInfoForm()
+    billing_form = BillingInfoForm(prefix='billing')
+    shipping_form = ShippingInfoForm(prefix='shipping')
 
     active_address = Address.objects.filter(
         user=request.user, status=True).first()
@@ -462,32 +465,41 @@ def checkout_view(request):
             # Getting total amount for Paypal Amount
             for p_id, item in request.session["cart_data_obj"].items():
                 total_amount += int(item["qty"]) * float(item["price"])
+            
+            
+            billing_form = BillingInfoForm(request.POST, prefix='billing')
+            shipping_form = ShippingInfoForm(request.POST, prefix='shipping')
 
-            billing_form = BillingInfoForm(data=request.POST)
-            shipping_form = ShippingInfoForm(data=request.POST)
+            forms_valid = all([billing_form.is_valid(), shipping_form.is_valid()])
 
-            if billing_form.is_valid() and shipping_form.is_valid():
+            if forms_valid:
+                try:
+                    order = CartOrder.objects.create(
+                        user=request.user, price=total_amount)
 
-                # Create ORder Object
-                order = CartOrder.objects.create(
-                    user=request.user, price=total_amount)
+                    billing = billing_form.save(commit=False)
+                    billing.order = order
+                    billing.save()
 
-                # save billings
-                billing = billing_form.save(commit=False)
-                billing.order = order
-                billing.save()
-
-                shipping = shipping_form.save(commit=False)
-                shipping.order = order
-                shipping.save()
+                    shipping = shipping_form.save(commit=False)
+                    shipping.order = order
+                    shipping.save()
+                   
+                except Exception as e:
+                    messages.error(request, f"An error occurred: {str(e)}")
             else:
-                messages.warning(
-                    request, "Something went wrong, Please try again."
-                )
-                error = billing_form.errors
-                a = list(error.as_data())
-                print(a)
-                return HttpResponse('form error')
+                # Forms are not valid, collect and display errors
+                errors = {}
+                for form in [billing_form, shipping_form]:
+                    for field, error_list in form.errors.items():
+                        errors[f"{form.prefix}-{field}"] = error_list
+
+
+                for field, error_list in errors.items():
+                    for error in error_list:
+                        messages.error(request, f"{field}: {error}")
+                        
+                # Or redirect back to the form page
                 return redirect(request.META.get('HTTP_REFERER'))
 
             # Getting total amount for The Cart
@@ -515,7 +527,6 @@ def checkout_view(request):
                 "return_url": "http://{}{}".format(host, reverse("core:payment-completed", kwargs={"order_id": order.id})),
                 "cancel_url": "http://{}{}".format(host, reverse("core:payment-failed")),
             }
-        
 
             paypal_payment_button = PayPalPaymentsForm(initial=paypal_dict)
 
@@ -640,20 +651,43 @@ def payment_completed_view(request, order_id):
 
     # Fetch the order, billing, and shipping info
     order = get_object_or_404(CartOrder, pk=order_id)
+    order.paid_status = True
+    order.save()
+
     billing = BillingInfo.objects.filter(order=order).first()
     shipping = ShippingInfo.objects.filter(order=order).first()
-    
-    # print(order, billing, shipping)
+
+    # sending email
+    context = {
+        "billing": billing,
+        "shipping": shipping,
+        "cart_data": request.session["cart_data_obj"],
+        "totalcartitems": len(request.session["cart_data_obj"]),
+        "cart_total_amount": cart_total_amount,
+    }
+
+    receiver_email = [shipping.email,
+                      billing.email if billing.email != shipping.email else '']
+    template_name = "mail/invoice-mail.html"
+    convert_to_html_content = render_to_string(
+        template_name=template_name,
+        context=context
+    )
+    plain_message = strip_tags(convert_to_html_content)
+
+    yo_send_it = send_mail(subject="Order Placed !!",
+                           message=plain_message,
+                           from_email=settings.EMAIL_HOST_USER,
+                           recipient_list=receiver_email,
+                           html_message=convert_to_html_content,
+                           fail_silently=True
+                           )
+
     return render(
         request,
         "core/payment-completed.html",
-        {
-            "billing": billing,
-            "shipping": shipping,
-            "cart_data": request.session["cart_data_obj"],
-            "totalcartitems": len(request.session["cart_data_obj"]),
-            "cart_total_amount": cart_total_amount,
-        },
+        context
+
     )
 
 

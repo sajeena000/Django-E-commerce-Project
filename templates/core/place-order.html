@@ -34,12 +34,17 @@
                                 {{ field.label_tag }}
 
                                 <input
-                                type="text"
+                                {% if field.label == 'Email' %} type="email" {% else %} type="text" {% endif %}
                                 id="{{field.html_name}}"
                                 name="{{field.html_name}}"
                                 placeholder="Enter {{field.html_name}}."
                                 class="form-control"
                                 value="{{ field.value|default:'' }}"
+
+                                {% if field.field.required %}required{% endif %}
+                                {% if field.field.min_value %}min="{{ field.field.min_value }}"{% endif %}
+                                {% if field.field.max_value %}max="{{ field.field.max_value }}"{% endif %}
+                                {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %}
                               />
 
                               {{ field.errors }}
@@ -62,12 +67,18 @@
                                     {{ field.label_tag }} 
 
                                     <input
-                                    type="text"
+                                   {% if field.label == 'Email' %} type="email" {% else %} type="text" {% endif %}
                                     id="{{field.html_name}}"
                                     name="{{field.html_name}}"
                                     placeholder="Enter {{field.html_name}}."
                                     class="form-control"
                                     value="{{ field.value|default:'' }}"
+
+                                    {% if field.field.required %}required{% endif %}
+                                    {% if field.field.min_value %}min="{{ field.field.min_value }}"{% endif %}
+                                    {% if field.field.max_value %}max="{{ field.field.max_value }}"{% endif %}
+                                    {% if field.field.max_length %}maxlength="{{ field.field.max_length }}"{% endif %}
+
                                   />
 
                                   {{ field.errors }}
