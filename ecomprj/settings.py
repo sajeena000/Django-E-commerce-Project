@@ -22,18 +22,21 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'django_ckeditor_5',
     'paypal.standard.ipn',
+    'debug_toolbar',
 
     # Custom Apps
     'core',
     'userauths',
     'useradmin',
     'company',
+
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -237,7 +240,7 @@ CKEDITOR_5_CONFIGS = {
         "toolbar": [
             # "heading",
             # "|",
-            
+
             # "|",
             "bold",
             "italic",
@@ -342,17 +345,45 @@ CKEDITOR_5_CONFIGS = {
         },
         "htmlSupport": {
             "allow": [
-                {"name": "/.*/", "attributes": True, "classes": True, "styles": True}
+                {"name": "/.*/", "attributes": True,
+                    "classes": True, "styles": True}
             ]
         },
     },
 }
 
 
-
-#PAYPAL_RECEIVER_EMAIL = 'businessdestiny@gmail.com'
-#PAYPAL_RECEIVER_EMAIL = 'sb-cz7kw15889015@personal.example.com'
-#PAYPAL_RECEIVER_EMAIL = 'sajeenamalla2@gmail.com'
+# PAYPAL_RECEIVER_EMAIL = 'businessdestiny@gmail.com'
+# PAYPAL_RECEIVER_EMAIL = 'sb-cz7kw15889015@personal.example.com'
+# PAYPAL_RECEIVER_EMAIL = 'sajeenamalla2@gmail.com'
 PAYPAL_RECEIVER_EMAIL = 'sb-da7e032489869@business.example.com'
 PAYPAL_TEST = True
 
+#for django debug toolbar
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+
+
+# error logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            # Specify the path to the log file
+            'filename': os.path.join(BASE_DIR, 'error.log'),
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
