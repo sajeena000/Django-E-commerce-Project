@@ -479,6 +479,7 @@ def checkout_view(request):
 
                     billing = billing_form.save(commit=False)
                     billing.order = order
+                    billing.payment_method = "paypal"
                     billing.save()
 
                     shipping = shipping_form.save(commit=False)
