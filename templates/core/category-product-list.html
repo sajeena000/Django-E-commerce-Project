@@ -1,5 +1,7 @@
 {% extends 'partials/base.html' %}
 {% load static %}
+{% load custom_filters %}
+
 {% block content %}
     <main class="main">
         <div class="page-header mt-30 mb-50">
@@ -99,8 +101,19 @@
                                     </div>
                                     <div class="product-card-bottom">
                                         <div class="product-price">
-                                            <span>$</span> <span class="current-product-price-{{ p.id }}">{{p.price}}</span>
-                                            <span class="old-price">${{p.old_price}}</span>
+                                            {% if request.session.exchange_rate %}
+                                            <span><i class="{{request.session.currency_icon}}"></i></span> <span class="current-product-price-{{ p.id }}">
+                                                    {{p.price|multiply:request.session.exchange_rate}}
+                                                </span>
+                                                <span class="old-price">
+                                                    <i class="{{request.session.currency_icon}}"></i> {{p.old_price|multiply:request.session.exchange_rate}}
+                                                </span>
+                                            {% else %}
+                                                <span>$</span> <span class="current-product-price-{{ p.id }}">
+                                                        {{p.price}}
+                                                    </span>
+                                                    <span class="old-price">${{p.old_price}}</span>
+                                            {% endif %}
                                         </div>
                                         <div class="add-cart">
                                             <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{ p.id }}">

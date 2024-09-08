@@ -1,0 +1,55 @@
+<div class="border p-40 cart-totals ml-30 mb-50">
+    <div class="d-flex align-items-end justify-content-between mb-30">
+        <h4>Your Order</h4>
+        <h6 class="text-muted">Subtotal - <span class="text-brand">
+            {% if request.session.exchange_rate %}
+            <i class="{{request.session.currency_icon}}"></i>
+            {% else %}
+            {{"$"}}
+            {% endif %} 
+            
+            {{cart_total_amount|floatformat:2}}
+        </span></h6>
+    </div>
+    <div class="divider-2 mb-30"></div>
+    <a href="{% url 'core:cart' %}" class="d-block text-fill-out mt-30 mb-30">Return to Cart</a>
+    <div class="table-responsive order_table checkout">
+        <table class="table no-border">
+            <tbody>
+                {% for product_id, item in cart_data.items %}
+                <tr>
+                    <td class="image product-thumbnail"><img src="{{ item.image }}" alt="#"></td>
+                    <td>
+                        <h6 class="w-160 mb-5"><a href="{% url 'core:product-detail' item.pid %}" class="text-heading">{{item.title}}</a></h6>
+                        <p class="text-muted">Handmade with care</p>
+                    </td>
+                    <td>
+                        <h6 class="text-muted pl-20 pr-20">x {{ item.qty }}</h6>
+                    </td>
+                    <td>
+                        <h5 class="text-muted">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                            {{"$"}}
+                            {% endif %} 
+                            
+                            {{item.price}}
+                        </h5>
+                    </td>
+                    <td>
+                        <h5 class="text-brand">
+                            {% if request.session.exchange_rate %}
+                            <i class="{{request.session.currency_icon}}"></i>
+                            {% else %}
+                            {{"$"}}
+                            {% endif %} 
+                            
+                            {% widthratio item.price 1 item.qty %}</h5>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

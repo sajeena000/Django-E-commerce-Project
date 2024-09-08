@@ -416,6 +416,17 @@ def update_cart(request):
         {"data": context, "totalcartitems": len(
             request.session["cart_data_obj"])}
     )
+    
+    
+def update_currency(request, currency_code, currency, exchange_rate, currency_icon):
+    
+        request.session['currency_code'] = currency_code
+        request.session['currency'] = currency
+        request.session['exchange_rate'] = exchange_rate
+        request.session['currency_icon'] = currency_icon
+        
+        return redirect(request.META.get('HTTP_REFERER'))
+    
 
 
 @login_required
@@ -523,7 +534,7 @@ def checkout_view(request):
                 "amount": cart_total_amount,
                 "item_name": "Order-Item-No-" + str(order.id),
                 "invoice": "INVOICE_NO-" + str(order.id),
-                "currency_code": "USD",
+                "currency_code": request.session['currency_code'] if request.session['currency_code'] else 'USD',
                 "notify_url": "http://{}{}".format(host, reverse("core:paypal-ipn")),
                 "return_url": "http://{}{}".format(host, reverse("core:payment-completed", kwargs={"order_id": order.id})),
                 "cancel_url": "http://{}{}".format(host, reverse("core:payment-failed")),
