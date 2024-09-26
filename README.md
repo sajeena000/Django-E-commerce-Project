@@ -1,1 +1,1 @@
-this is my project
+Django E-commerce Project
